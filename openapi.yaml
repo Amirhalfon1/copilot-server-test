@@ -3,7 +3,7 @@ info:
   title: Hello Plugin
   version: 1.0.0
 servers:
-  - url: https://REPLACE_ME.onrender.com
+  - url: https://copilot-server-test.onrender.com/hello
 paths:
   /hello:
     get:
