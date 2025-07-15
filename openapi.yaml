@@ -1,21 +1,34 @@
 openapi: 3.0.1
 info:
-  title: Hello Plugin
+  title: Magic Plugin
   version: 1.0.0
 servers:
   - url: https://copilot-server-test.onrender.com
 paths:
-  /hello:
-    get:
-      summary: Say hello
-      operationId: sayHello
+  /magic-response:
+    post:
+      summary: Generate a magical answer to any question
+      operationId: getMagicAnswer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                question:
+                  type: string
+                  description: The user's question
+              required:
+                - question
       responses:
         '200':
-          description: A greeting message
+          description: The magic answer
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  message:
+                  answer:
                     type: string
+                    example: "🎩 Hello from Amir's Plugin! You asked: 'X'"
