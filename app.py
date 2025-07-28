@@ -54,6 +54,9 @@ def authorize():
 @app.route("/token", methods=["POST"])
 def token():
     form = request.form
+    print("🔁 FORM =", dict(form), flush=True)
+    code = form.get("code")
+    print("🧪 RAW CODE VALUE:", code, flush=True)
 
     code = form.get("code")
     client_id = form.get("client_id")
