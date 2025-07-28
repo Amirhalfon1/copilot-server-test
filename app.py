@@ -51,18 +51,25 @@ def authorize():
 # Step 2: Token exchange
 @app.route("/token", methods=["POST"])
 def token():
-    code = request.form.get("code")
-    client_id = request.form.get("client_id")
-    client_secret = request.form.get("client_secret")
-    grant_type = request.form.get("grant_type")
+    form = request.form
+
+    code = form.get("code")
+    client_id = form.get("client_id")
+    client_secret = form.get("client_secret")
+    grant_type = form.get("grant_type")
 
     if client_id != CLIENT_ID or client_secret != CLIENT_SECRET:
         return jsonify({"error": "invalid_client"}), 401
 
-    if grant_type != "authorization_code" or code not in CODES:
+    if grant_type != "authorization_code":
+        return jsonify({"error": "unsupported_grant_type"}), 400
+
+    email = CODES.get(code)
+    if not email:
         return jsonify({"error": "invalid_grant"}), 400
 
-    email = CODES.pop(code)
+    # Now pop the code AFTER we validate it
+    del CODES[code]
 
     # Create JWT token
     payload = {
