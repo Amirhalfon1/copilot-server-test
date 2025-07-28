@@ -46,6 +46,8 @@ def authorize():
 
     code = f"code-{int(time.time())}-{email}"
     CODES[code] = email
+    print("AAAAAA CODES:", CODES)
+
     return redirect(f"{redirect_uri}?code={code}&state={state}")
 
 # Step 2: Token exchange
