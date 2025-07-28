@@ -65,7 +65,7 @@ def token():
 
     if grant_type != "authorization_code":
         return jsonify({"error": "unsupported_grant_type"}), 400
-
+    print("BBBBBBB CODES:", CODES)
     email = CODES.get(code)
     if not email:
         return jsonify({"error": "invalid_grant"}), 400
