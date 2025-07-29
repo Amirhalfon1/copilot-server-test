@@ -22,6 +22,12 @@ def authorize():
         scope = request.args.get("scope")
         state = request.args.get("state", "")
 
+        print("🚀 AUTHORIZE GET - Received params:")
+        print(f"   client_id: {client_id}")
+        print(f"   redirect_uri: {redirect_uri}")
+        print(f"   scope: {scope}")
+        print(f"   state: {state}")
+
         html = f"""
         <form method="POST">
             <input type="hidden" name="client_id" value="{client_id}">
@@ -46,33 +52,56 @@ def authorize():
 
     code = f"code-{int(time.time())}-{email}"
     CODES[code] = email
-    print("AAAAAA CODES:", CODES)
+    print("✅ GENERATED CODE:", code)
+    print("📝 CODES STORE:", CODES)
+    print("🔄 REDIRECTING TO:", f"{redirect_uri}?code={code}&state={state}")
 
     return redirect(f"{redirect_uri}?code={code}&state={state}")
 
-# Step 2: Token exchange
+# Step 2: Token exchange - Handle both form data, JSON, and query parameters
 @app.route("/token", methods=["POST"])
 def token():
-    form = request.form
-    print("🔁 FORM =", dict(form), flush=True)
-    code = form.get("code")
-    print("🧪 RAW CODE VALUE:", code, flush=True)
+    print("📨 TOKEN REQUEST - Content-Type:", request.content_type)
 
-    code = form.get("code")
-    client_id = form.get("client_id")
-    client_secret = form.get("client_secret")
-    grant_type = form.get("grant_type")
+    # Try JSON first, then form data, then query string
+    if request.is_json:
+        data = request.get_json()
+        code = data.get("code")
+        client_id = data.get("client_id")
+        client_secret = data.get("client_secret")
+        grant_type = data.get("grant_type")
+        print("📝 JSON DATA =", data, flush=True)
+    else:
+        code = request.form.get("code") or request.args.get("code")
+        client_id = request.form.get("client_id") or request.args.get("client_id")
+        client_secret = request.form.get("client_secret") or request.args.get("client_secret")
+        grant_type = request.form.get("grant_type") or request.args.get("grant_type")
+        print("🔁 FORM =", dict(request.form), flush=True)
+        print("🔁 ARGS =", dict(request.args), flush=True)
+
+    print("🧪 EXTRACTED VALUES:")
+    print(f"   code: {code}")
+    print(f"   client_id: {client_id}")
+    print(f"   client_secret: {client_secret}")
+    print(f"   grant_type: {grant_type}")
+
+    # Check if we got the literal string instead of the actual code
+    if code == "{authCode}":
+        print("❌ Received literal '{authCode}' - check your Copilot Studio configuration!")
+        return jsonify({"error": "invalid_grant", "description": "Received literal placeholder instead of actual authorization code"}), 400
 
     if client_id != CLIENT_ID or client_secret != CLIENT_SECRET:
         return jsonify({"error": "invalid_client"}), 401
 
     if grant_type != "authorization_code":
         return jsonify({"error": "unsupported_grant_type"}), 400
+
     print("BBBBBBB CODES:", CODES)
     email = CODES.get(code)
     print("CCCCCCC email:", email)
+
     if not email:
-        return jsonify({"error": "invalid_grant"}), 400
+        return jsonify({"error": "invalid_grant", "description": f"Code '{code}' not found or expired"}), 400
 
     # Now pop the code AFTER we validate it
     del CODES[code]
@@ -111,4 +140,4 @@ def magic_response():
     })
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=10000)
+    app.run(host="0.0.0.0", port=10000, debug=True)
