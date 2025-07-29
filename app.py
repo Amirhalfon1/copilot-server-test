@@ -12,6 +12,22 @@ CLIENT_ID = "magic-client"
 CLIENT_SECRET = "magic-secret"
 REDIRECT_URI = "https://europe.token.botframework.com/.auth/web/redirect"
 
+# Add a simple endpoint to check if server is working
+@app.route("/health", methods=["GET"])
+def health():
+    return jsonify({"status": "ok", "message": "OAuth server is running"})
+
+# Add logging for all requests
+@app.before_request
+def log_request():
+    print(f"🌐 {request.method} {request.path} - Content-Type: {request.content_type}")
+    if request.args:
+        print(f"📥 Query params: {dict(request.args)}")
+    if request.form:
+        print(f"📝 Form data: {dict(request.form)}")
+    if request.is_json:
+        print(f"📋 JSON data: {request.get_json()}")
+
 # Step 1: Show login form
 @app.route("/authorize", methods=["GET", "POST"])
 def authorize():
