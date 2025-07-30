@@ -5,6 +5,49 @@ info:
 servers:
   - url: https://copilot-server-test.onrender.com
 paths:
+  /kaltura/entries:
+    get:
+      summary: Fetch Kaltura entries using KS from token
+      description: Extracts the Kaltura Session (KS) from the JWT token and uses it to fetch entries from Kaltura
+      operationId: getKalturaEntries
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Successfully retrieved Kaltura entries
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: Bad request - No KS found in token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '500':
+          description: Server error when calling Kaltura API
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                  details:
+                    type: string
   /magic-response:
     post:
       summary: Generate a magical answer to any question

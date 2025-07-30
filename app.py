@@ -157,5 +157,38 @@ def magic_response():
         "answer": f"🎩 Hello {user}, you asked: '{question}' and I'm your authenticated Copilot Plugin!"
     })
 
+
+import requests
+
+# Step 4: Kaltura Entries API
+@app.route("/kaltura/entries", methods=["GET"])
+def get_kaltura_entries():
+    auth_header = request.headers.get("Authorization", "")
+    token = auth_header.replace("Bearer ", "")
+
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+        ks = payload.get("ks")
+
+        if not ks:
+            return jsonify({"error": "No Kaltura Session found in token"}), 400
+
+        # Call Kaltura API with the KS
+        kaltura_response = requests.get(
+            "https://www.kaltura.com/api_v3/service/media/action/list",
+            params={
+                "format": 1,  # JSON format
+                "ks": ks
+            }
+        )
+
+        if kaltura_response.status_code != 200:
+            return jsonify({"error": "Kaltura API error", "details": kaltura_response.text}), 500
+
+        return jsonify(kaltura_response.json())
+
+    except Exception as e:
+        return jsonify({"error": "unauthorized", "details": str(e)}), 401
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=10000, debug=True)
