@@ -1,75 +1,20 @@
-openapi: 3.0.1
+openapi: 3.0.0
 info:
-  title: Magic Plugin
-  description: API for retrieving Kaltura media entries and their captions
+  title: Kaltura API
   version: 1.0.0
+  description: API for retrieving Kaltura media entries and captions
 servers:
   - url: https://copilot-server-test.onrender.com
-
-components:
-  securitySchemes:
-    BearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
-  schemas:
-    KalturaEntry:
-      type: object
-      properties:
-        id:
-          type: string
-          description: Kaltura entry ID
-        name:
-          type: string
-          description: Entry title
-        description:
-          type: string
-          description: Entry description
-        thumbnailUrl:
-          type: string
-          description: URL to the entry thumbnail
-        createdAt:
-          type: integer
-          description: Creation timestamp
-        updatedAt:
-          type: integer
-          description: Last update timestamp
-    Error:
-      type: object
-      properties:
-        error:
-          type: string
-        details:
-          type: string
-
 paths:
-  /health:
-    get:
-      summary: Check if server is running
-      operationId: healthCheck
-      responses:
-        '200':
-          description: Server is operational
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                  message:
-                    type: string
-
   /kaltura/entries:
     get:
-      summary: Fetch Kaltura entries using KS from token
-      description: Extracts the Kaltura Session from the JWT token and uses it to fetch entries
+      summary: Get Kaltura entries
       operationId: getKalturaEntries
       security:
         - BearerAuth: []
       responses:
         '200':
-          description: Successfully retrieved Kaltura entries
+          description: OK
           content:
             application/json:
               schema:
@@ -78,30 +23,64 @@ paths:
                   objects:
                     type: array
                     items:
-                      $ref: '#/components/schemas/KalturaEntry'
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        name:
+                          type: string
+                        description:
+                          type: string
+                        thumbnailUrl:
+                          type: string
         '400':
-          description: Bad request - No KS found in token
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          description: Bad Request
         '401':
           description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
         '500':
-          description: Server error when calling Kaltura API
+          description: Server Error
+  /kaltura/captions/{entryId}:
+    get:
+      summary: Get captions for entry
+      operationId: getKalturaCaptions
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: entryId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-
+                type: object
+                properties:
+                  caption_id:
+                    type: string
+                  entry_id:
+                    type: string
+                  format:
+                    type: string
+                  language:
+                    type: string
+                  content:
+                    type: string
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '404':
+          description: Not Found
+        '500':
+          description: Server Error
   /magic-response:
     post:
-      summary: Generate a magical answer to any question
-      operationId: getMagicAnswer
+      summary: Magic response
+      operationId: getMagicResponse
       security:
         - BearerAuth: []
       requestBody:
@@ -113,12 +92,11 @@ paths:
               properties:
                 question:
                   type: string
-                  description: The user's question
               required:
                 - question
       responses:
         '200':
-          description: The magic answer
+          description: OK
           content:
             application/json:
               schema:
@@ -126,65 +104,10 @@ paths:
                 properties:
                   answer:
                     type: string
-
-  /kaltura/captions/{entryId}:
-    get:
-      summary: Fetch captions for a specific Kaltura entry
-      description: Gets the caption content for a specific entry ID
-      operationId: getKalturaCaptions
-      security:
-        - BearerAuth: []
-      parameters:
-        - name: entryId
-          in: path
-          required: true
-          description: The ID of the Kaltura entry to fetch captions for
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Successfully retrieved captions content
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  caption_id:
-                    type: string
-                    description: ID of the caption asset
-                  entry_id:
-                    type: string
-                    description: ID of the entry
-                  format:
-                    type: string
-                    description: Format of the caption
-                  language:
-                    type: string
-                    description: Language of the caption
-                  content:
-                    type: string
-                    description: The actual caption text content
-        '400':
-          description: Bad request - No KS found in token
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
         '401':
           description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        '404':
-          description: No captions found for this entry
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        '500':
-          description: Server error when calling Kaltura API
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
