@@ -181,6 +181,10 @@ def get_kaltura_entries():
                 "ks": ks
             }
         )
+        # Add logging to print response information
+        print(f"📊 Kaltura API Response Status: {kaltura_response.status_code}")
+        print(f"📊 Kaltura API Response Headers: {kaltura_response.headers}")
+        print(f"📊 Kaltura API Response Content: {kaltura_response.text}")
 
         if kaltura_response.status_code != 200:
             return jsonify({"error": "Kaltura API error", "details": kaltura_response.text}), 500
