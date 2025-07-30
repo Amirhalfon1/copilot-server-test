@@ -194,5 +194,41 @@ def get_kaltura_entries():
     except Exception as e:
         return jsonify({"error": "unauthorized", "details": str(e)}), 401
 
+# Step 5: Kaltura Captions API
+@app.route("/kaltura/captions/<entry_id>", methods=["GET"])
+def get_kaltura_captions(entry_id):
+    auth_header = request.headers.get("Authorization", "")
+    token = auth_header.replace("Bearer ", "")
+
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+        ks = payload.get("ks")
+
+        if not ks:
+            return jsonify({"error": "No Kaltura Session found in token"}), 400
+
+        # Call Kaltura API to get captions for the specified entry
+        kaltura_response = requests.get(
+            "https://api.nvq2.ovp.kaltura.com/api_v3/service/caption_captionasset/action/list",
+            params={
+                "format": 1,  # JSON format
+                "ks": ks,
+                "filter:entryIdEqual": entry_id
+            }
+        )
+
+        # Log response information
+        print(f"📊 Kaltura Captions API Response Status: {kaltura_response.status_code}")
+        print(f"📊 Kaltura Captions API Response Headers: {kaltura_response.headers}")
+        print(f"📊 Kaltura Captions API Response Content: {kaltura_response.text}")
+
+        if kaltura_response.status_code != 200:
+            return jsonify({"error": "Kaltura API error", "details": kaltura_response.text}), 500
+
+        return jsonify(kaltura_response.json())
+
+    except Exception as e:
+        return jsonify({"error": "unauthorized", "details": str(e)}), 401
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=10000, debug=True)

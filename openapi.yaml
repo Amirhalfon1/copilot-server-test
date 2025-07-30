@@ -85,3 +85,57 @@ paths:
                   answer:
                     type: string
                     example: "🎩 Hello from Amir's Plugin! You asked: 'X'"
+
+  /kaltura/captions/{entryId}:
+    get:
+      summary: Fetch captions for a specific Kaltura entry
+      description: Uses the KS from JWT token to fetch caption assets for the specified entry ID
+      operationId: getKalturaCaptions
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: entryId
+          in: path
+          required: true
+          description: The ID of the Kaltura entry to fetch captions for
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successfully retrieved captions data
+          content:
+            application/json:
+              schema:
+                type: object
+                description: The Kaltura caption assets response
+        '400':
+          description: Bad request - No KS found in token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                  details:
+                    type: string
+        '500':
+          description: Server error when calling Kaltura API
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                  details:
+                    type: string
