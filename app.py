@@ -271,6 +271,7 @@ def get_kaltura_captions(entry_id):
     except Exception as e:
         print(f"❌ Error in caption API: {str(e)}")
         return jsonify({"error": "unauthorized", "details": str(e)}), 401
+    can
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=10000, debug=True)
