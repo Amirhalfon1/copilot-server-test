@@ -179,7 +179,10 @@ def get_kaltura_entries():
             params={
                 "format": 1,  # JSON format
                 "pager:objectType": "KalturaFilterPager",
-                "pager:pageSize": 500,  # Limit to 10 entries
+                "pager:pageSize": 500,  # Limit to 500 entries
+                "responseProfile:objectType": "KalturaDetachedResponseProfile",
+                "responseProfile:type": 1,  # 1 = KalturaResponseProfileType.INCLUDE_FIELDS
+                "responseProfile:fields": "id,thumbnailUrl,createdAt,updatedAt,name,description",
                 "ks": ks
             }
         )
