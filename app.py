@@ -144,6 +144,7 @@ def magic_response():
 
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+        print("🔓 Decoded JWT payload:", payload)
     except Exception:
         return jsonify({"error": "unauthorized"}), 401
 
