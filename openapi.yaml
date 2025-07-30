@@ -2,19 +2,20 @@ openapi: 3.0.0
 info:
   title: Kaltura API
   version: 1.0.0
-  description: API for retrieving Kaltura media entries and captions
+  description: API for retrieving Kaltura media entries and their captions from the Kaltura Video Platform
 servers:
   - url: https://copilot-server-test.onrender.com
 paths:
   /kaltura/entries:
     get:
       summary: Get Kaltura entries
+      description: Retrieves a list of media entries from Kaltura using the KS (Kaltura Session) stored in the JWT token. Returns metadata about videos including titles, descriptions and thumbnails.
       operationId: getKalturaEntries
       security:
         - BearerAuth: []
       responses:
         '200':
-          description: OK
+          description: A list of Kaltura media entries successfully retrieved
           content:
             application/json:
               schema:
@@ -22,26 +23,32 @@ paths:
                 properties:
                   objects:
                     type: array
+                    description: List of media entries from Kaltura
                     items:
                       type: object
                       properties:
                         id:
                           type: string
+                          description: Unique identifier for the Kaltura entry
                         name:
                           type: string
+                          description: Title of the media entry
                         description:
                           type: string
+                          description: Detailed description of the media content
                         thumbnailUrl:
                           type: string
+                          description: URL to the entry's thumbnail image
         '400':
-          description: Bad Request
+          description: Bad Request - No KS found in token
         '401':
-          description: Unauthorized
+          description: Unauthorized - Invalid authentication credentials
         '500':
-          description: Server Error
+          description: Server Error - Failed to retrieve entries from Kaltura API
   /kaltura/captions/{entryId}:
     get:
       summary: Get captions for entry
+      description: Retrieves the caption content for a specific media entry. First fetches the caption asset, then gets its download URL, and returns the actual caption text content.
       operationId: getKalturaCaptions
       security:
         - BearerAuth: []
@@ -49,11 +56,12 @@ paths:
         - name: entryId
           in: path
           required: true
+          description: The unique identifier of the Kaltura entry to fetch captions for
           schema:
             type: string
       responses:
         '200':
-          description: OK
+          description: Caption content successfully retrieved
           content:
             application/json:
               schema:
@@ -61,25 +69,31 @@ paths:
                 properties:
                   caption_id:
                     type: string
+                    description: Unique identifier of the caption asset
                   entry_id:
                     type: string
+                    description: Identifier of the associated media entry
                   format:
                     type: string
+                    description: Format of the captions (e.g., srt, vtt)
                   language:
                     type: string
+                    description: Language code of the captions
                   content:
                     type: string
+                    description: The actual transcript text content of the captions
         '400':
-          description: Bad Request
+          description: Bad Request - No KS found in token
         '401':
-          description: Unauthorized
+          description: Unauthorized - Invalid authentication credentials
         '404':
-          description: Not Found
+          description: Not Found - No captions exist for this entry
         '500':
-          description: Server Error
+          description: Server Error - Failed to retrieve captions from Kaltura API
   /magic-response:
     post:
       summary: Magic response
+      description: Generates a response to a user question. Authenticated endpoint requiring a valid JWT token.
       operationId: getMagicResponse
       security:
         - BearerAuth: []
@@ -92,11 +106,12 @@ paths:
               properties:
                 question:
                   type: string
+                  description: The question asked by the user
               required:
                 - question
       responses:
         '200':
-          description: OK
+          description: Successfully generated a response
           content:
             application/json:
               schema:
@@ -104,10 +119,31 @@ paths:
                 properties:
                   answer:
                     type: string
+                    description: The generated answer to the user's question
         '401':
-          description: Unauthorized
+          description: Unauthorized - Invalid or missing authentication token
+  /health:
+    get:
+      summary: Check server health
+      description: Returns the current operational status of the server
+      operationId: healthCheck
+      responses:
+        '200':
+          description: Server is operational
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    description: Health status indicator
+                  message:
+                    type: string
+                    description: Additional status information
 components:
   securitySchemes:
     BearerAuth:
       type: http
       scheme: bearer
+      description: JWT token containing the Kaltura Session (KS) required for API calls
