@@ -178,6 +178,8 @@ def get_kaltura_entries():
             "https://api.nvq2.ovp.kaltura.com/api_v3/service/media/action/list",
             params={
                 "format": 1,  # JSON format
+                "pager:objectType": "KalturaFilterPager",
+                "pager:pageSize": 500,  # Limit to 10 entries
                 "ks": ks
             }
         )
