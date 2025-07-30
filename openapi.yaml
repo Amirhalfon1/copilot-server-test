@@ -1,6 +1,9 @@
 openapi: 3.0.1
 info:
   title: Magic Plugin
+  description: |
+    API for retrieving Kaltura media entries and their captions.
+    This API allows you to search for media entries and fetch captions for specific entries.
   version: 1.0.0
 servers:
   - url: https://copilot-server-test.onrender.com
@@ -11,6 +14,31 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
+  schemas:
+    KalturaEntry:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Kaltura entry ID
+          example: "1_abc123xyz"
+        name:
+          type: string
+          description: Entry title
+          example: "Alzheimer's Disease Overview"
+        description:
+          type: string
+          description: Entry description
+          example: "A comprehensive overview of Alzheimer's disease"
+        thumbnailUrl:
+          type: string
+          description: URL to the entry thumbnail
+        createdAt:
+          type: integer
+          description: Creation timestamp
+        updatedAt:
+          type: integer
+          description: Last update timestamp
 
 security:
   - BearerAuth: []
@@ -28,6 +56,11 @@ paths:
             application/json:
               schema:
                 type: object
+                properties:
+                  objects:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/KalturaEntry'
         '400':
           description: Bad request - No KS found in token
           content:
@@ -89,7 +122,12 @@ paths:
   /kaltura/captions/{entryId}:
     get:
       summary: Fetch captions for a specific Kaltura entry
-      description: Uses the KS from JWT token to fetch caption assets for the specified entry ID
+      description: |
+        Gets the caption content for a specific entry ID.
+        This endpoint handles the complete process:
+        1. Fetches the caption assets for the entry
+        2. Gets the download URL for the caption file
+        3. Downloads and returns the actual caption content
       operationId: getKalturaCaptions
       security:
         - BearerAuth: []
@@ -102,12 +140,32 @@ paths:
             type: string
       responses:
         '200':
-          description: Successfully retrieved captions data
+          description: Successfully retrieved captions content
           content:
             application/json:
               schema:
                 type: object
-                description: The Kaltura caption assets response
+                properties:
+                  caption_id:
+                    type: string
+                    description: ID of the caption asset
+                    example: "0_captionid123"
+                  entry_id:
+                    type: string
+                    description: ID of the entry
+                    example: "0_entryid456"
+                  format:
+                    type: string
+                    description: Format of the caption
+                    example: "srt"
+                  language:
+                    type: string
+                    description: Language of the caption
+                    example: "en"
+                  content:
+                    type: string
+                    description: The actual caption text content
+                    example: "1\n00:00:00,000 --> 00:00:05,000\nWelcome to this video about Alzheimer's disease."
         '400':
           description: Bad request - No KS found in token
           content:
@@ -128,6 +186,15 @@ paths:
                     type: string
                   details:
                     type: string
+        '404':
+          description: No captions found for this entry
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
         '500':
           description: Server error when calling Kaltura API
           content:
@@ -139,3 +206,19 @@ paths:
                     type: string
                   details:
                     type: string
+
+x-workflows:
+  getEntryCaption:
+    title: Get captions for a specific topic
+    description: |
+      To retrieve captions for videos on a specific topic:
+      1. First call /kaltura/entries to retrieve a list of relevant entries
+      2. Extract the entry ID from the results that match the topic
+      3. Call /kaltura/captions/{entryId} with that ID to get the caption content
+      4. The caption content will be returned as plain text in the response
+    example: |
+      For example, to get captions for videos about Alzheimer's disease:
+      1. Search through the entries and find those with "Alzheimer" in the name or description
+      2. Select the most relevant entry ID
+      3. Request the caption content using that entry ID
+      4. Process and present the caption content to the user

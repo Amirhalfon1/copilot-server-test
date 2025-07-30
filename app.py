@@ -199,7 +199,7 @@ def get_kaltura_entries():
     except Exception as e:
         return jsonify({"error": "unauthorized", "details": str(e)}), 401
 
-# Step 5: Kaltura Captions API
+# Step 5: Kaltura Captions API - Enhanced to return caption content
 @app.route("/kaltura/captions/<entry_id>", methods=["GET"])
 def get_kaltura_captions(entry_id):
     auth_header = request.headers.get("Authorization", "")
@@ -212,8 +212,8 @@ def get_kaltura_captions(entry_id):
         if not ks:
             return jsonify({"error": "No Kaltura Session found in token"}), 400
 
-        # Call Kaltura API to get captions for the specified entry
-        kaltura_response = requests.get(
+        # 1. Call Kaltura API to get captions for the specified entry
+        list_response = requests.get(
             "https://api.nvq2.ovp.kaltura.com/api_v3/service/caption_captionasset/action/list",
             params={
                 "format": 1,  # JSON format
@@ -222,17 +222,54 @@ def get_kaltura_captions(entry_id):
             }
         )
 
-        # Log response information
-        print(f"📊 Kaltura Captions API Response Status: {kaltura_response.status_code}")
-        print(f"📊 Kaltura Captions API Response Headers: {kaltura_response.headers}")
-        print(f"📊 Kaltura Captions API Response Content: {kaltura_response.text}")
+        print(f"📊 Kaltura Caption List Response Status: {list_response.status_code}")
 
-        if kaltura_response.status_code != 200:
-            return jsonify({"error": "Kaltura API error", "details": kaltura_response.text}), 500
+        if list_response.status_code != 200:
+            return jsonify({"error": "Kaltura API error", "details": list_response.text}), 500
 
-        return jsonify(kaltura_response.json())
+        caption_list = list_response.json()
+        if not caption_list.get("objects") or len(caption_list["objects"]) == 0:
+            return jsonify({"error": "No captions found for this entry"}), 404
+
+        # Get the first caption asset ID
+        caption_id = caption_list["objects"][0]["id"]
+
+        # 2. Get the download URL for the caption asset
+        url_response = requests.get(
+            "https://api.nvq2.ovp.kaltura.com/api_v3/service/caption_captionasset/action/getUrl",
+            params={
+                "format": 1,  # JSON format
+                "ks": ks,
+                "id": caption_id
+            }
+        )
+
+        print(f"📊 Kaltura Caption URL Response Status: {url_response.status_code}")
+
+        if url_response.status_code != 200:
+            return jsonify({"error": "Failed to get caption URL", "details": url_response.text}), 500
+
+        caption_url = url_response.json()
+
+        # 3. Download the caption content
+        content_response = requests.get(caption_url)
+
+        if content_response.status_code != 200:
+            return jsonify({"error": "Failed to download caption content"}), 500
+
+        caption_content = content_response.text
+
+        # Return the caption content along with metadata
+        return jsonify({
+            "caption_id": caption_id,
+            "entry_id": entry_id,
+            "format": caption_list["objects"][0].get("format"),
+            "language": caption_list["objects"][0].get("language"),
+            "content": caption_content
+        })
 
     except Exception as e:
+        print(f"❌ Error in caption API: {str(e)}")
         return jsonify({"error": "unauthorized", "details": str(e)}), 401
 
 if __name__ == "__main__":
