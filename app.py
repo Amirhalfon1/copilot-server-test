@@ -125,6 +125,7 @@ def token():
     # Create JWT token
     payload = {
         "sub": email,
+        "ks": "djJ8MzgzfF2m9Zt2-xdNRz6ERea44FCy5YgpWvfWYMBGbU_uS-19tO1Ag6eVHXAqTUxyO1Yatu5zBw6Tu6yNq30Hg4DSAi7b3QxnCB7Dy1lUvo0BDWmJZdhnUOtZFF7sD5zqSKU3ZA==",
         "iat": int(time.time()),
         "exp": int(time.time()) + 3600
     }
