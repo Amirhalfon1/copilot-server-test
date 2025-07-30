@@ -175,7 +175,7 @@ def get_kaltura_entries():
 
         # Call Kaltura API with the KS
         kaltura_response = requests.get(
-            "https://www.kaltura.com/api_v3/service/media/action/list",
+            "https://api.nvq2.ovp.kaltura.com/api_v3/service/media/action/list",
             params={
                 "format": 1,  # JSON format
                 "ks": ks
