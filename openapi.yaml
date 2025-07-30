@@ -4,14 +4,23 @@ info:
   version: 1.0.0
 servers:
   - url: https://copilot-server-test.onrender.com
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - BearerAuth: []
+
 paths:
   /kaltura/entries:
     get:
       summary: Fetch Kaltura entries using KS from token
       description: Extracts the Kaltura Session (KS) from the JWT token and uses it to fetch entries from Kaltura
       operationId: getKalturaEntries
-      security:
-        - BearerAuth: []
       responses:
         '200':
           description: Successfully retrieved Kaltura entries
@@ -48,6 +57,7 @@ paths:
                     type: string
                   details:
                     type: string
+
   /magic-response:
     post:
       summary: Generate a magical answer to any question
