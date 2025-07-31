@@ -8,8 +8,8 @@ servers:
 paths:
   /kaltura/entries:
     get:
-      summary: Get Kaltura entries
-      description: Retrieves a list of media entries from Kaltura using the KS (Kaltura Session) stored in the JWT token. Returns metadata about videos including titles, descriptions and thumbnails.
+      summary: Get Kaltura entries (media - videos, meeting recordings, etc.)
+      description: Retrieves a list of media entries from Kaltura using the KS (Kaltura Session) stored in the JWT token. Returns metadata about videos including id,thumbnailUrl,createdAt,updatedAt,name,description,dataUrl,downloadUrl,tags
       operationId: getKalturaEntries
       security:
         - BearerAuth: []
