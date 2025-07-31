@@ -112,9 +112,7 @@ def token():
     if grant_type != "authorization_code":
         return jsonify({"error": "unsupported_grant_type"}), 400
 
-    print("BBBBBBB CODES:", CODES)
     email = CODES.get(code)
-    print("CCCCCCC email:", email)
 
     if not email:
         return jsonify({"error": "invalid_grant", "description": f"Code '{code}' not found or expired"}), 400
@@ -125,9 +123,9 @@ def token():
     # Create JWT token
     payload = {
         "sub": email,
-        "ks": "djJ8MzgzfF2m9Zt2-xdNRz6ERea44FCy5YgpWvfWYMBGbU_uS-19tO1Ag6eVHXAqTUxyO1Yatu5zBw6Tu6yNq30Hg4DSAi7b3QxnCB7Dy1lUvo0BDWmJZdhnUOtZFF7sD5zqSKU3ZA==",
+        "ks": "djJ8MzgzfGB4vrwnh-vzBkm4GhjZw0qEyIG-aDo4AfTfyQ0_L2PpS2sG60wZkZiJZ_khLbnyHzfDthYG3-1O3dR02_uaN3CYA9WLSd3v-9uH68FUSkNdOkJcwoM8a6k2i-j1JVO9YA==",
         "iat": int(time.time()),
-        "exp": int(time.time()) + 3600
+        "exp": int(time.time()) + 86400
     }
     token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
 
