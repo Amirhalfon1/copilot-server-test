@@ -123,7 +123,7 @@ def token():
     # Create JWT token
     payload = {
         "sub": email,
-        "ks": "djJ8MzgzfGB4vrwnh-vzBkm4GhjZw0qEyIG-aDo4AfTfyQ0_L2PpS2sG60wZkZiJZ_khLbnyHzfDthYG3-1O3dR02_uaN3CYA9WLSd3v-9uH68FUSkNdOkJcwoM8a6k2i-j1JVO9YA==",
+        "ks": "djJ8MzgzfOIOjxhZud6I3mv07XYODV-Iz7C29o_tx2FbPvAuc_hsVjFEVMATxVM1l1DbTU0MskE6dyddBnVHy9p6NxK4WlQqsQilzDeH1Qr1rcKT3S0l6HeINPAa2oXPAas8sLbtxQ==",
         "iat": int(time.time()),
         "exp": int(time.time()) + 86400
     }
@@ -193,6 +193,9 @@ def get_kaltura_entries():
             return jsonify({"error": "Kaltura API error", "details": kaltura_response.text}), 500
 
         return jsonify(kaltura_response.json())
+
+    except jwt.ExpiredSignatureError:
+        return jsonify({"error": "unauthorized", "details": "Signature has expired"}), 401
 
     except Exception as e:
         return jsonify({"error": "unauthorized", "details": str(e)}), 401
@@ -266,10 +269,12 @@ def get_kaltura_captions(entry_id):
             "content": caption_content
         })
 
+    except jwt.ExpiredSignatureError:
+        return jsonify({"error": "unauthorized", "details": "Signature has expired"}), 401
     except Exception as e:
         print(f"❌ Error in caption API: {str(e)}")
         return jsonify({"error": "unauthorized", "details": str(e)}), 401
-    can
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=10000, debug=True)
