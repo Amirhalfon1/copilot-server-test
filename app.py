@@ -177,7 +177,7 @@ def get_kaltura_entries():
             params={
                 "format": 1,  # JSON format
                 "filter:objectType": "KalturaMediaEntryFilter",
-                "filter:categoryIdEqual": 13531382,  # Filter by category ID
+                "filter:categoryAncestorIdIn": 13531382,  # Filter by category ID
                 "pager:objectType": "KalturaFilterPager",
                 "pager:pageSize": 500,  # Limit to 500 entries
                 "responseProfile:objectType": "KalturaDetachedResponseProfile",
