@@ -176,6 +176,8 @@ def get_kaltura_entries():
             "https://api.nvq2.ovp.kaltura.com/api_v3/service/media/action/list",
             params={
                 "format": 1,  # JSON format
+                "filter:objectType": "KalturaMediaEntryFilter",
+                "filter:categoryIdEqual": 13531382,  # Filter by category ID
                 "pager:objectType": "KalturaFilterPager",
                 "pager:pageSize": 500,  # Limit to 500 entries
                 "responseProfile:objectType": "KalturaDetachedResponseProfile",
