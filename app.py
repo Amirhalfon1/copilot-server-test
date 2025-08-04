@@ -163,6 +163,7 @@ import requests
 def get_kaltura_entries():
     auth_header = request.headers.get("Authorization", "")
     token = auth_header.replace("Bearer ", "")
+    print("🔐 Kaltura Entries API - Received token:", token)
 
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
