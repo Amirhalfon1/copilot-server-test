@@ -123,7 +123,7 @@ def token():
     # Create JWT token
     payload = {
         "sub": email,
-        "ks": "djJ8MzgzfOIOjxhZud6I3mv07XYODV-Iz7C29o_tx2FbPvAuc_hsVjFEVMATxVM1l1DbTU0MskE6dyddBnVHy9p6NxK4WlQqsQilzDeH1Qr1rcKT3S0l6HeINPAa2oXPAas8sLbtxQ==",
+        "ks": "djJ8MzgzfAWmfaZHgmCe2en_OM6h2o842eV2vUxnRL9QqGO9uyPUVFhjzFPQSIKRo2P0-yarqkuVvzsnWcl6jK0IFBlspn8DFNLJkRX_-pRFui0mnNtm3Yo0UmDP65KjIzXt7maH1A==",
         "iat": int(time.time()),
         "exp": int(time.time()) + 86400
     }
